@@ -32,7 +32,7 @@ Historically, I have been using `docker-compose` to both run and build docker im
 
 > `docker-compose` is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
 
-docker-compose wraps around `docker build`, which has suffered some improvement since it first came out, but has some serious limitations.
+docker-compose wraps around `docker build`, despite some improvements there are still serious limitations
 
 After the launch of `multi-stage build` feature for docker build, users requests many similar additions.
 
