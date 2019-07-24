@@ -28,7 +28,7 @@
 
 ## docker-compose
 
-Historically, I have been using `docker-compose`do both run and build docker images, both locally and with automation.
+Historically, I have been using `docker-compose` to both run and build docker images, both locally and with automation.
 
 > `docker-compose` is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
 
