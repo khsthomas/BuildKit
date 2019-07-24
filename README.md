@@ -32,7 +32,7 @@ Historically, I have been using `docker-compose` to both run and build docker im
 
 > `docker-compose` is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration.
 
-docker-compose wraps around `docker build`, which as suffered some improvement since it first came out, but has some serious limitations.
+docker-compose wraps around `docker build`, which has suffered some improvement since it first came out, but has some serious limitations.
 
 After the launch of `multi-stage build` feature for docker build, users requests many similar additions.
 
@@ -124,14 +124,14 @@ This allows us with minimal effort and a simple override file to use a `docker-c
 We begin with creating an override file to our usual `docker-compose.yml` file.
 This is required cause the way docker-compose and bake handle `context` path is different.
 
-You can find one of such files at: [ .jenkins/buildx.images-services.kimi.yml ]( .jenkins/buildx.images-services.kimi.yml )
+You can find one of such files at: [ buildx.yml ]( buildx.yml )
 
 In there we override the context path and also the name of the dockerfile, since we will using a new file to to add the extra features of BuildKit.
 
 
 ## new Dockerfile
 
-Let's compare [ .Docker-node-transpile/buildx ]( .Docker-node-transpile/buildx ) and [ .Docker-node-transpile/Dockerfile]( .Docker-node-transpile/Dockerfile )
+Let's compare [ Dockerfile-node-buildkit ]( Dockerfile-node-buildkit ) and [ Dockerfile-node ]( Dockerfile-node  )
 
 The first thing we need to add is `# syntax=docker/dockerfile:experimental`.
 
