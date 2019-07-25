@@ -218,8 +218,9 @@ We use `id=XXX` to keep cache of the same nature together.
 #### sharing
 It is also recommended to use `sharing=locked` or `sharing=private` if your package manager isn't able to deal with concurrent access to shared cache.
 
-One will make the entire process slower, since it processes one build at a time, and the other loses the benefit of shared cache.
+One will make the build process slightly slower, since the run commands that use the mount with same id will now wait for each other, and the other loses the benefit of shared cache.
 
+.
 
 ### RUN --mount=type=secret
 
