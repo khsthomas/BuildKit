@@ -1,0 +1,44 @@
+FROM node:alpine AS node-builder-ms
+
+WORKDIR /src
+
+ARG npm_config_unsafe_perm=true
+# hack for node to build in linux
+
+RUN apk --no-cache add git
+
+RUN npm install tslint typescript -g
+
+COPY package-lock.json /src/
+COPY package.json /src/
+
+RUN npm install --production
+
+
+FROM node-builder-ms AS node-builder-ms-dev
+
+RUN npm install
+COPY . /src/
+RUN npm run build
+
+FROM node:alpine AS node-ms-storage
+
+EXPOSE 3000
+CMD ["npm", "start"]
+WORKDIR /app
+ENV NODE_ENV=production
+
+## extra specific packages dependencies
+COPY docker-packages-required.txt /tmp/docker-packages-required.txt
+RUN if [ -s /tmp/docker-packages-required.txt ]; then \
+     apk --no-cache add `cat /tmp/docker-packages-required.txt` \
+     ; fi &&\
+     rm /tmp/docker-packages-required.txt
+
+RUN chown node /app
+
+USER node
+
+COPY --from=node-builder-ms --chown=node /src/node_modules /app/node_modules
+COPY --from=node-builder-ms-dev --chown=node /src/build /app/build
+COPY --chown=node package.json /app/package.json

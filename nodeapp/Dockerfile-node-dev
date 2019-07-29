@@ -1,0 +1,9 @@
+FROM node:alpine AS node-builder-ms-dev
+
+EXPOSE 3000
+WORKDIR /src
+
+RUN apk --no-cache add curl jq git
+
+CMD ["/bin/sh", "-c", "npm run build && \
+    npm start"]
