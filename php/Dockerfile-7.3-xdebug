@@ -1,0 +1,7 @@
+ARG AWS_ECR_ACCOUNT=0123456789
+
+FROM ${AWS_ECR_ACCOUNT}.dkr.ecr.eu-west-1.amazonaws.com/php:php73 AS php73-xdebug
+
+COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+RUN apk add --no-cache \
+    php7-xdebug
