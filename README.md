@@ -242,7 +242,6 @@ docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
 ```
 
 ### Gotchas
-* no current support for variable interpolation
 * bake doesn't support push to a registry, so we have to use docker-compose for that
 
 ---
