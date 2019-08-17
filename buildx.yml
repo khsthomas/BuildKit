@@ -4,3 +4,7 @@ services:
   php73:
     build:
       dockerfile: buildx-7.3
+
+  nginx-base:
+    build:
+      dockerfile: Dockerfile

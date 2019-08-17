@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:experimental
+
 FROM nginx:stable-alpine AS nginx-base
 
 EXPOSE 443

@@ -6,17 +6,19 @@ on:
     - build/*
 
 jobs:
-  # build-docker-compose:
-  #   name: build with docker-compose
-  #   runs-on: ubuntu-latest
+  build-docker-compose:
+    name: build with docker-compose
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   - name: checkout
-  #     uses: actions/checkout@v1
+    steps:
+    - name: checkout
+      uses: actions/checkout@v1
 
-  #   - name: docker-compose build
-  #     run: |
-  #       docker-compose build
+    - name: docker-compose build
+      run: |
+        docker-compose config
+        docker-compose build
+        docker images
 
   build-buildx:
     name: build with buildx bake
@@ -35,7 +37,7 @@ jobs:
         curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
         chmod a+x ~/.docker/cli-plugins/docker-buildx
         docker-buildx version
-        docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'
+        # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'
 
     - name: checkout
       uses: actions/checkout@v1
@@ -47,6 +49,7 @@ jobs:
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
         docker-compose -f docker-compose.yml -f buildx.yml config
+        docker-buildx bake -f docker-compose.yml -f buildx.yml --print
         # docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
         docker-buildx bake -f docker-compose.yml -f buildx.yml
         docker images
