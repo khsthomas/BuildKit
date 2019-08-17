@@ -4,7 +4,7 @@ services:
   php73:
     image: php:release-${GITHUB_SHA}-${INVOCATION_ID}
     build:
-      context: ./php/Docker/php
+      context: ./php
       dockerfile: Dockerfile-7.3
 
   nginx-base:
