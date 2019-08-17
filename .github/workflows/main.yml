@@ -26,10 +26,10 @@ jobs:
     - name: buildx dependencies
       env:
         BUILDX_VER: v0.3.0
+        PREFER_BUILDCTL: 1
       run: |
         docker version
         docker info
-        echo $PATH
         export PATH=~/.docker/cli-plugins/:$PATH
         mkdir -p ~/.docker/cli-plugins/
         curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
@@ -47,4 +47,6 @@ jobs:
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
         docker-compose -f docker-compose.yml -f buildx.yml config
-        docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
+        # docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
+        docker-buildx bake -f docker-compose.yml -f buildx.yml
+        docker images
