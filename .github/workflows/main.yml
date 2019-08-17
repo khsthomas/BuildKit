@@ -6,14 +6,45 @@ on:
     - build/*
 
 jobs:
-  build:
-    name: build
+  # build-docker-compose:
+  #   name: build with docker-compose
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: checkout
+  #     uses: actions/checkout@v1
+
+  #   - name: docker-compose build
+  #     run: |
+  #       docker-compose build
+
+  build-buildx:
+    name: build with buildx bake
     runs-on: ubuntu-latest
 
     steps:
+    - name: buildx dependencies
+      env:
+        BUILDX_VER: v0.3.0
+      run: |
+        docker version
+        docker info
+        echo $PATH
+        export PATH=~/.docker/cli-plugins/:$PATH
+        mkdir -p ~/.docker/cli-plugins/
+        curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
+        chmod a+x ~/.docker/cli-plugins/docker-buildx
+        docker-buildx version
+        docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'
+
     - name: checkout
       uses: actions/checkout@v1
 
-    - name: build docker-compose
+    - name: buildx bake
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
       run: |
-        docker-compose build
+        export PATH=~/.docker/cli-plugins/:$PATH
+        docker-compose -f docker-compose.yml -f buildx.yml config
+        docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
