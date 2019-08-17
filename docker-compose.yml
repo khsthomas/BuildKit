@@ -1,0 +1,14 @@
+version: "3.7"
+
+services:
+  php73:
+    image: php:release-${GITHUB_SHA}-${INVOCATION_ID}
+    build:
+      context: ./php/Docker/php
+      dockerfile: Dockerfile-7.3
+
+  nginx-base:
+    image: nginx-base:release-${GITHUB_SHA}-${INVOCATION_ID}
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
