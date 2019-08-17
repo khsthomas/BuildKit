@@ -19,6 +19,12 @@ jobs:
         echo test, and deploy your project.
         pwd
         printenv
+
+jobs:
+  docker:
+    name: env inside a docker
+    runs-on: ubuntu-latest
+
     steps:
     - uses: docker://alpine:3.10
     - name: Run a one-line script
