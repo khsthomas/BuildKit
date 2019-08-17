@@ -4,14 +4,24 @@ on: release
 
 jobs:
   build:
-
+    name: build
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v1
     - name: Run a one-line script
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: echo Hello, world!
     - name: Run a multi-line script
       run: |
         echo Add other actions to build,
         echo test, and deploy your project.
+        pwd
+        printenv
+    steps:
+    - uses: docker://alpine:3.10
+    - name: Run a one-line script
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: printenv
