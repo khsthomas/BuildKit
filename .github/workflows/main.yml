@@ -1,9 +1,10 @@
 name: build Docker images
 
-on: [release, push]
-push:
-  branches:
-  - tests/*
+on:
+  push:
+    branches:
+    - tests/*
+  releases:
 
 jobs:
   build:
