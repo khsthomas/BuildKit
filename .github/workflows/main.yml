@@ -4,6 +4,8 @@ on:
   push:
     branches:
     - build/*
+  pull_request:
+  - opened
 
 jobs:
   build-docker-compose:
@@ -28,12 +30,14 @@ jobs:
     - name: buildx dependencies
       env:
         BUILDX_VER: v0.3.0
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
         PREFER_BUILDCTL: 1
       run: |
         docker version
         docker info
-        export PATH=~/.docker/cli-plugins/:$PATH
         mkdir -p ~/.docker/cli-plugins/
+        export PATH=~/.docker/cli-plugins/:$PATH
         curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
         chmod a+x ~/.docker/cli-plugins/docker-buildx
         docker-buildx version
@@ -45,6 +49,7 @@ jobs:
     - name: buildx bake
       env:
         DOCKER_CLI_EXPERIMENTAL: enabled
+        PREFER_BUILDCTL: 1
         DOCKER_BUILDKIT: 1
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
