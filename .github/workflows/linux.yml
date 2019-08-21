@@ -1,0 +1,26 @@
+name: build packages
+
+on:
+  push:
+    branches:
+    - linux/*
+
+jobs:
+  dockerbuild:
+    name: docker build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: dockerbuild
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+        PREFER_BUILDCTL: 1
+      run: |
+        docker version
+        docker info
+        mkdir -p ~/.docker/cli-plugins/
+        export PATH=~/.docker/cli-plugins/:$PATH
+        docker build --platform=local -o . git://github.com/docker/buildx
+        mv buildx ~/.docker/cli-plugins/docker-buildx
+        docker-buildx version

@@ -1,0 +1,71 @@
+name: test merge
+
+on:
+  push:
+    branches:
+    - mergeyaml/*
+
+jobs:
+  dockerbuild:
+    name: docker build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: dockerbuild
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+        PREFER_BUILDCTL: 1
+      run: |
+        docker version
+        docker info
+        mkdir -p ~/.docker/cli-plugins/
+        export PATH=~/.docker/cli-plugins/:$PATH
+        git clone -b group-merge --single-branch https://github.com/tonistiigi/buildx.git
+        cd buildx
+
+          mkdir -p bin/tmp
+          export DOCKER_BUILDKIT=1
+          iidfile=$(mktemp -t docker-iidfile.XXXXXXXXXX)
+
+          docker build --target=binaries --iidfile $iidfile --force-rm .
+          iid=$(cat $iidfile)
+          containerID=$(docker create $iid copy)
+          docker cp $containerID:/ bin/tmp
+          mv bin/tmp/build* bin/
+          rm -rf bin/tmp
+          docker rm $containerID
+          docker rmi -f $iid
+          rm -f $iidfile
+
+        ls -lahtr
+        ls -lahtr bin
+        mv bin/buildx ~/.docker/cli-plugins/docker-buildx
+        docker-buildx version
+
+    - name: checkout
+      uses: actions/checkout@v1
+
+    - name: merge 1
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        PREFER_BUILDCTL: 1
+        DOCKER_BUILDKIT: 1
+      run: |
+        export PATH=~/.docker/cli-plugins/:$PATH
+        docker-compose -f docker-compose.yml -f buildx.yml config
+        docker-buildx bake -f docker-compose.yml -f buildx.yml --print
+        # docker-buildx bake -f docker-compose.yml -f buildx.yml
+        # docker images
+
+    - name: merge 2
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        PREFER_BUILDCTL: 1
+        DOCKER_BUILDKIT: 1
+      run: |
+        export PATH=~/.docker/cli-plugins/:$PATH
+        docker-compose -f docker-compose.yml -f buildx.1.yml config
+        docker-buildx bake -f docker-compose.yml -f buildx.1.yml --print
+        # docker-buildx bake -f docker-compose.yml -f buildx.yml
+        # docker images

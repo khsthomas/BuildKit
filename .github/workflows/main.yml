@@ -38,8 +38,12 @@ jobs:
         docker info
         mkdir -p ~/.docker/cli-plugins/
         export PATH=~/.docker/cli-plugins/:$PATH
-        curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
-        chmod a+x ~/.docker/cli-plugins/docker-buildx
+        ### install binaries
+          curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
+          chmod a+x ~/.docker/cli-plugins/docker-buildx
+        ### build from source
+          # docker build --platform=local -o . git://github.com/docker/buildx
+          # mv buildx ~/.docker/cli-plugins/docker-buildx
         docker-buildx version
         # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'
 
