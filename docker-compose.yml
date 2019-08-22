@@ -2,13 +2,19 @@ version: "3.7"
 
 services:
   php73:
-    image: php:release-${GITHUB_SHA}-${INVOCATION_ID}
+    image: php:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
     build:
       context: ./php
       dockerfile: Dockerfile-7.3
 
   nginx-base:
-    image: nginx-base:release-${GITHUB_SHA}-${INVOCATION_ID}
+    image: nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
     build:
       context: ./nginx
       dockerfile: Dockerfile
+
+  nodeapp:
+    image: nodeapp:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    build:
+      context: ./nodeapp
+      dockerfile: Dockerfile-node

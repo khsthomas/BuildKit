@@ -4,8 +4,8 @@ on:
   push:
     branches:
     - build/*
-  pull_request:
-  - opened
+  # pull_request:
+  # - opened
 
 jobs:
   build-docker-compose:
@@ -13,12 +13,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: compose dependencies
+      run: |
+        docker-compose version
+
     - name: checkout
       uses: actions/checkout@v1 --quiet
 
     - name: docker-compose build
+      env:
+        LLB: docker-build
       run: |
         docker-compose config
+        # docker-compose build --parallel
         docker-compose build
         docker images
 
@@ -55,6 +62,7 @@ jobs:
         DOCKER_CLI_EXPERIMENTAL: enabled
         PREFER_BUILDCTL: 1
         DOCKER_BUILDKIT: 1
+        LLB: buildkit
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
         docker-compose -f docker-compose.yml -f buildx.yml config

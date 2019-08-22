@@ -1,0 +1,12 @@
+{
+	"name": "helloworld",
+	"version": "1.0.0",
+	"description": "hello world",
+	"author": "Fernando",
+	"scripts": {
+		"start": "npm run watch"
+	  },
+	  "dependencies": {
+    "hello-world-npm": "*"
+  }
+}
