@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v1 --quiet
 
     - name: docker-compose build
       run: |
@@ -48,7 +48,7 @@ jobs:
         # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'
 
     - name: checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v1 --quiet
 
     - name: buildx bake
       env:
