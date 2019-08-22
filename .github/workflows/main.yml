@@ -18,7 +18,7 @@ jobs:
         docker-compose version
 
     - name: checkout
-      uses: actions/checkout@v1 --quiet
+      uses: actions/checkout@v1 # --quiet
 
     - name: docker-compose build
       env:
@@ -55,7 +55,7 @@ jobs:
         # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'
 
     - name: checkout
-      uses: actions/checkout@v1 --quiet
+      uses: actions/checkout@v1 # --quiet
 
     - name: buildx bake
       env:
