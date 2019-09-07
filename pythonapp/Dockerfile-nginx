@@ -1,0 +1,5 @@
+ARG NGINX_BASE_IMAGE
+
+FROM ${NGINX_BASE_IMAGE} AS uwsgi-nginx
+
+COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf

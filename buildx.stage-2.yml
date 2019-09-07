@@ -4,3 +4,11 @@ services:
   php73-xdebug:
     build:
       dockerfile: buildx-7.3-xdebug
+
+  nodeapp:
+    build:
+      dockerfile: buildx-node
+
+  pythonapp:
+    build:
+      dockerfile: buildx-python

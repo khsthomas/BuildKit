@@ -1,0 +1,26 @@
+# syntax=docker/dockerfile:experimental
+
+FROM python:3-alpine AS ms-python
+
+EXPOSE 5000
+CMD [ "uwsgi", "--ini", "uwsgi.ini" ]
+
+WORKDIR /var/www
+
+RUN adduser -DHSu 1000 www-data -s /sbin/nologin
+
+RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk ln -vs /var/cache/apk /etc/apk/cache && \
+	apk add --update \
+     uwsgi-python3
+
+COPY --chown=www-data:0 uwsgi.ini /var/www/uwsgi.ini
+
+# COPY requirements.pip /tmp/requirements.pip
+RUN --mount=type=bind,target=/tmp/requirements.pip,source=requirements.pip \
+     pip3 install -r /tmp/requirements.pip
+
+RUN ls -l /tmp/  ## WTF
+
+COPY --chown=www-data:0 app.py /var/www/app.py
+
+USER www-data

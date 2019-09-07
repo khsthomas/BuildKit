@@ -2,9 +2,29 @@ version: "3.7"
 
 services:
   php73-xdebug:
-    image: php-xdebug:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    image: php:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}-xdebug
     build:
       context: ./php
       dockerfile: Dockerfile-7.3-xdebug
       args:
         - PHP_BASE_IMAGE=php:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+
+  nodeapp:
+    image: nodeapp:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    build:
+      context: ./nodeapp
+      dockerfile: Dockerfile-node
+
+  pythonapp:
+    image: pythonapp:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    build:
+      context: ./pythonapp
+      dockerfile: Dockerfile-python
+
+  pythonapp-nginx:
+    image: pythonapp-nginx:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    build:
+      context: ./pythonapp
+      dockerfile: Dockerfile-nginx
+      args:
+        - NGINX_BASE_IMAGE=nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}

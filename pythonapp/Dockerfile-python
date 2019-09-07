@@ -1,0 +1,20 @@
+FROM python:3-alpine AS ms-python
+
+EXPOSE 5000
+CMD [ "uwsgi", "--ini", "uwsgi.ini" ]
+
+WORKDIR /var/www
+
+RUN adduser -DHSu 1000 www-data -s /sbin/nologin
+
+RUN apk --no-cache add \
+     uwsgi-python3
+
+COPY --chown=www-data:0 uwsgi.ini /var/www/uwsgi.ini
+
+COPY requirements.pip /tmp/requirements.pip
+RUN pip3 install -r /tmp/requirements.pip
+
+COPY --chown=www-data:0 app.py /var/www/app.py
+
+USER www-data

@@ -12,9 +12,3 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-
-  nodeapp:
-    image: nodeapp:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
-    build:
-      context: ./nodeapp
-      dockerfile: Dockerfile-node
