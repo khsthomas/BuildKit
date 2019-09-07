@@ -1,8 +1,11 @@
+# syntax=docker/dockerfile:experimental
+
 ARG AWS_ECR_ACCOUNT=0123456789
 ARG PHP_BASE_IMAGE
 
 FROM ${PHP_BASE_IMAGE} AS php73-xdebug
 
 COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-RUN apk add --no-cache \
+RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk \
+	apk add --update \
     php7-xdebug

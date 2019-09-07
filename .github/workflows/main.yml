@@ -24,9 +24,17 @@ jobs:
       env:
         LLB: docker-build
       run: |
-        docker-compose config
-        # docker-compose build --parallel
+        echo "Show images to be built"
+        docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
+
+        echo "Building images"
+        # docker-compose build --parallel  ##  old version on the gihub action node, prevent us from using --parallel
         docker-compose build
+
+        echo "Building images that depend on the previous stage"
+        docker-compose -f docker-compose.stage-2.yml build
+
+        echo "Show tagged images"
         docker images
 
   build-buildx:
@@ -46,13 +54,14 @@ jobs:
         mkdir -p ~/.docker/cli-plugins/
         export PATH=~/.docker/cli-plugins/:$PATH
         ### install binaries
-          curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
-          chmod a+x ~/.docker/cli-plugins/docker-buildx
+          # curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
+          # chmod a+x ~/.docker/cli-plugins/docker-buildx
         ### build from source
-          # docker build --platform=local -o . git://github.com/docker/buildx
-          # mv buildx ~/.docker/cli-plugins/docker-buildx
+          docker build --platform=local -o . git://github.com/docker/buildx
+          mv buildx ~/.docker/cli-plugins/docker-buildx
         docker-buildx version
-        # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'
+        # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false' ## disable GC
+        # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master  ##  use buildkit image built from latest master
 
     - name: checkout
       uses: actions/checkout@v1 # --quiet
@@ -65,8 +74,17 @@ jobs:
         LLB: buildkit
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
-        docker-compose -f docker-compose.yml -f buildx.yml config
-        docker-buildx bake -f docker-compose.yml -f buildx.yml --print
+
+        echo "Show images to be built"
+        docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml config
+        docker-buildx bake -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml --print
+
+        echo "Building images"
         # docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
         docker-buildx bake -f docker-compose.yml -f buildx.yml
+
+        echo "Building images that depend on the previous stage"
+        docker-buildx bake -f docker-compose.stage-2.yml -f buildx.stage-2.yml
+
+        echo "Show tagged images"
         docker images
