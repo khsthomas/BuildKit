@@ -4,3 +4,4 @@ services:
   php73:
     build:
       dockerfile: buildx-7.3
+      target: php73

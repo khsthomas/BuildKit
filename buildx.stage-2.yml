@@ -4,6 +4,7 @@ services:
   php73-xdebug:
     build:
       dockerfile: buildx-7.3-xdebug
+      target: php73-xdebug
 
   nodeapp:
     build:
