@@ -10,28 +10,20 @@ jobs:
     name: test DinD
     runs-on: ubuntu-latest
     steps:
-    - name: ubuntu version
-      uses: docker://ubuntu:rolling
-      with:
-        args: printenv
-      # run: |
-      #   pwd
-      #   printenv
-      #   cat /etc/os-release
-      #   docker --version
-      # shell: bash
-
       # volumes:
       #   - my_docker_volume:/volume_mount
-    # - name: compose version
-    #   uses: docker://docker/compose:1.25.0-rc2
-    #   run: |
-    #     pwd
-    #     printenv
-    #     cat /etc/os-release
-    #     docker --version
-    #     docker-compose version
-    #   shell: sh
+    - name: printenv
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: pwd && printenv
+    - name: docker version
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: docker --version
+    - name: compose version
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: docker-compose version
 
     # - name: checkout
     #   uses: actions/checkout@v1 # --quiet
