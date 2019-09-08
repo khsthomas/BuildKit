@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-docker-compose:
-    name: test DinD
+    name: build with docker-compose DinD
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
     - name: docker-compose config
       env:
         LLB: docker-build
-        INVOCATION_ID: dunnowhattoputhere
+        # INVOCATION_ID: dunnowhattoputhere
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
@@ -32,7 +32,7 @@ jobs:
     - name: Building images
       env:
         LLB: docker-build
-        INVOCATION_ID: dunnowhattoputhere
+        # INVOCATION_ID: dunnowhattoputhere
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose build
@@ -41,7 +41,7 @@ jobs:
     - name: Building images that depend on the previous stage
       env:
         LLB: docker-build
-        INVOCATION_ID: dunnowhattoputhere
+        # INVOCATION_ID: dunnowhattoputhere
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose -f docker-compose.stage-2.yml build --parallel

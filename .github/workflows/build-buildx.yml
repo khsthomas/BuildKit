@@ -1,0 +1,71 @@
+name: Docker in Docker
+
+on:
+  push:
+    branches:
+    - buildx/*
+
+jobs:
+  build-buildx:
+    name: build with buildx bake
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: buildx dependencies
+      env:
+        BUILDX_VER: v0.3.0
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+        PREFER_BUILDCTL: 1
+      run: |
+        docker version
+        docker info
+        mkdir -vp \
+          ~/.docker/cli-plugins/ \
+          ~/dockercache
+        export PATH=~/.docker/cli-plugins/:$PATH
+        ### install binaries
+          # curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
+          # chmod a+x ~/.docker/cli-plugins/docker-buildx
+        ### build from source
+          docker build --platform=local -o . git://github.com/docker/buildx
+          mv buildx ~/.docker/cli-plugins/docker-buildx
+
+        docker-buildx version
+
+        # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'  ##  disable GC
+        # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master  ##  use buildkit image built from latest master
+        # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master --buildkitd-flags '--load'  ##  load the single-platform build result to docker images
+        # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master --buildkitd-flags '--oci-worker-gc=false --load --cache-to=type=local,dest=~/dockercache'  ##  export docker layers cache
+        docker-buildx ls
+
+    - name: checkout
+      uses: actions/checkout@v1 # --quiet
+      with:
+        fetch-depth: 1
+
+    - name: buildx bake
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        PREFER_BUILDCTL: 1
+        DOCKER_BUILDKIT: 1
+        LLB: buildkit
+      run: |
+        export PATH=~/.docker/cli-plugins/:$PATH
+
+        echo "Show images to be built"
+        docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml config
+        docker-buildx bake -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml --print
+
+        echo "Building images"
+        # docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
+        docker-buildx bake -f docker-compose.yml -f buildx.yml
+
+        echo "Building images that depend on the previous stage"
+        docker-buildx bake -f docker-compose.stage-2.yml -f buildx.stage-2.yml
+
+        echo "Show tagged images"
+        docker images
+
+        # echo "Show Docker layer cache"
+        # ls -lahtr ~/dockercache/
