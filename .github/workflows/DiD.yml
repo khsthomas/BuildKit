@@ -10,6 +10,7 @@ jobs:
     name: test DinD
     runs-on: ubuntu-latest
 
+    steps:
     - name: docker version
       uses: docker://docker/compose:1.25.0-rc2
       with:
