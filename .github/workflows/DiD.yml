@@ -16,7 +16,11 @@ jobs:
     steps:
     - name: compose version
       # run: version
-      run: lsb_release -a
+      run: |
+        pwd
+        printenv
+        lsb_release -a
+      shell: bash
 
     # - name: checkout
     #   uses: actions/checkout@v1 # --quiet
