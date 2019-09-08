@@ -9,12 +9,14 @@ jobs:
   build-docker-compose:
     name: build with docker-compose
     runs-on: ubuntu-latest
-    container: docker/compose:1.25.0-rc2
+    # container: docker/compose:1.25.0-rc2
+    container: ubuntu:latest
       # volumes:
       #   - my_docker_volume:/volume_mount
     steps:
     - name: compose version
-      run: version
+      # run: version
+      run: lsb_release -a
 
     # - name: checkout
     #   uses: actions/checkout@v1 # --quiet
