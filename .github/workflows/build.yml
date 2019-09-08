@@ -8,39 +8,83 @@ on:
   # - opened
 
 jobs:
-  build-docker-compose:
-    name: build with docker-compose
+  # build-docker-compose:
+  #   name: Build with docker-compose
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: compose dependencies
+  #     run: |
+  #       docker-compose version
+
+  #   - name: checkout
+  #     uses: actions/checkout@v1
+  #     with:
+  #       fetch-depth: 1
+
+  #   - name: docker-compose build
+  #     env:
+  #       LLB: docker-build
+  #     run: |
+  #       echo "Show images to be built"
+  #       docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
+
+  #       echo "Building images"
+  #       # docker-compose build --parallel  ##  old version on the gihub action node, prevent us from using --parallel
+  #       docker-compose build
+
+  #       echo "Building images that depend on the previous stage"
+  #       docker-compose -f docker-compose.stage-2.yml build
+
+  #       echo "Show tagged images"
+  #       docker images
+
+
+  build-docker-compose-image:
+    name: Build with docker-compose image
     runs-on: ubuntu-latest
 
     steps:
-    - name: compose dependencies
-      run: |
-        docker-compose version
+    - name: docker version
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: docker version
 
     - name: checkout
-      uses: actions/checkout@v1 # --quiet
+      uses: actions/checkout@v1
       with:
         fetch-depth: 1
 
-    - name: docker-compose build
+    - name: docker-compose config
       env:
         LLB: docker-build
-      run: |
-        echo "Show images to be built"
-        docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
+        # INVOCATION_ID: dunnowhattoputhere
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
 
-        echo "Building images"
-        # docker-compose build --parallel  ##  old version on the gihub action node, prevent us from using --parallel
-        docker-compose build
+    - name: Building images
+      env:
+        LLB: docker-build
+        # INVOCATION_ID: dunnowhattoputhere
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: docker-compose build --parallel
 
-        echo "Building images that depend on the previous stage"
-        docker-compose -f docker-compose.stage-2.yml build
+    - name: Building images that depend on the previous stage
+      env:
+        LLB: docker-build
+        # INVOCATION_ID: dunnowhattoputhere
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: docker-compose -f docker-compose.stage-2.yml build --parallel
 
-        echo "Show tagged images"
-        docker images
+    - name: Show tagged images
+      run: docker images
+
 
   build-buildx:
-    name: build with buildx bake
+    name: Build with Buildx bake
     runs-on: ubuntu-latest
 
     steps:
@@ -62,9 +106,7 @@ jobs:
           # chmod a+x ~/.docker/cli-plugins/docker-buildx
         ### build from source
           docker build --platform=local -o . git://github.com/docker/buildx
-          mv buildx ~/.docker/cli-plugins/docker-buildx
-
-        docker-buildx version
+          mv -v buildx ~/.docker/cli-plugins/docker-buildx
 
         # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'  ##  disable GC
         # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master  ##  use buildkit image built from latest master
@@ -73,7 +115,7 @@ jobs:
         docker-buildx ls
 
     - name: checkout
-      uses: actions/checkout@v1 # --quiet
+      uses: actions/checkout@v1
       with:
         fetch-depth: 1
 
