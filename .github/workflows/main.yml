@@ -51,7 +51,9 @@ jobs:
       run: |
         docker version
         docker info
-        mkdir -p ~/.docker/cli-plugins/
+        mkdir -vp \
+          ~/.docker/cli-plugins/ \
+          ~/dockercache
         export PATH=~/.docker/cli-plugins/:$PATH
         ### install binaries
           # curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
@@ -59,9 +61,14 @@ jobs:
         ### build from source
           docker build --platform=local -o . git://github.com/docker/buildx
           mv buildx ~/.docker/cli-plugins/docker-buildx
+
         docker-buildx version
-        # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false' ## disable GC
+
+        # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'  ##  disable GC
         # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master  ##  use buildkit image built from latest master
+        # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master --buildkitd-flags '--load'  ##  load the single-platform build result to docker images
+        # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master --buildkitd-flags '--oci-worker-gc=false --load --cache-to=type=local,dest=~/dockercache'  ##  export docker layers cache
+        docker-buildx ls
 
     - name: checkout
       uses: actions/checkout@v1 # --quiet
@@ -88,3 +95,6 @@ jobs:
 
         echo "Show tagged images"
         docker images
+
+        # echo "Show Docker layer cache"
+        # ls -lahtr ~/dockercache/
