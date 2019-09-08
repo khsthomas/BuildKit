@@ -12,30 +12,23 @@ jobs:
     steps:
       # volumes:
       #   - my_docker_volume:/volume_mount
-    - name: printenv
-      uses: docker://docker/compose:1.25.0-rc2
-      with:
-        args: pwd && printenv
     - name: docker version
       uses: docker://docker/compose:1.25.0-rc2
       with:
-        args: docker --version
-    - name: compose version
+        args: docker version && docker-compose version
+
+    - name: checkout
+      uses: actions/checkout@v1 # --quiet
+      with:
+        fetch-depth: 1
+        quiet: true
+
+    - name: docker-compose build
+      env:
+        LLB: docker-build
       uses: docker://docker/compose:1.25.0-rc2
       with:
-        args: docker-compose version
-
-    # - name: checkout
-    #   uses: actions/checkout@v1 # --quiet
-    #   with:
-    #     fetch-depth: 1
-
-    # - name: docker-compose build
-    #   env:
-    #     LLB: docker-build
-    #   run: |
-    #     echo "Show images to be built"
-    #     docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
+        args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
 
     #     echo "Building images"
     #     # docker-compose build --parallel  ##  old version on the gihub action node, prevent us from using --parallel
