@@ -19,6 +19,8 @@ jobs:
 
     - name: checkout
       uses: actions/checkout@v1 # --quiet
+      with:
+        fetch-depth: 1
 
     - name: docker-compose build
       env:
@@ -72,6 +74,8 @@ jobs:
 
     - name: checkout
       uses: actions/checkout@v1 # --quiet
+      with:
+        fetch-depth: 1
 
     - name: buildx bake
       env:
