@@ -15,7 +15,7 @@ jobs:
     - name: docker version
       uses: docker://docker/compose:1.25.0-rc2
       with:
-        args: docker version && docker-compose version
+        args: docker version
 
     - name: checkout
       uses: actions/checkout@v1 # --quiet
