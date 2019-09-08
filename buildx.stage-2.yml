@@ -3,7 +3,8 @@ version: "3.7"
 services:
   php73-xdebug:
     build:
-      dockerfile: buildx-7.3-xdebug
+      dockerfile: buildx-7.3
+      target: php73-xdebug
 
   nodeapp:
     build:

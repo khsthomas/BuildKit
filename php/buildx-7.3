@@ -28,3 +28,13 @@ RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk ln -vs /var/c
     php7-phar \
     php7-session \
     php7-zip
+
+FROM php73 AS php73-xdebug
+# target xdebug
+
+COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk \
+	apk add --update \
+    php7-xdebug
+
+FROM php73 AS php73-target
