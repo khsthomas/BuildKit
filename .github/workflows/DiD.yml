@@ -9,9 +9,11 @@ jobs:
   build-docker-compose:
     name: test DinD
     runs-on: ubuntu-latest
+
     steps:
-      # volumes:
-      #   - my_docker_volume:/volume_mount
+    - name: printenv
+      run: printenv
+
     - name: docker version
       uses: docker://docker/compose:1.25.0-rc2
       with:
@@ -21,21 +23,30 @@ jobs:
       uses: actions/checkout@v1 # --quiet
       with:
         fetch-depth: 1
-        quiet: true
 
-    - name: docker-compose build
+    - name: docker-compose config
       env:
         LLB: docker-build
+        INVOCATION_ID: $INVOCATION_ID
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
 
-    #     echo "Building images"
-    #     # docker-compose build --parallel  ##  old version on the gihub action node, prevent us from using --parallel
-    #     docker-compose build
+    - name: Building images
+      env:
+        LLB: docker-build
+        INVOCATION_ID: $INVOCATION_ID
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: docker-compose build --parallel
 
-    #     echo "Building images that depend on the previous stage"
-    #     docker-compose -f docker-compose.stage-2.yml build
+    - name: Building images that depend on the previous stage
+      env:
+        LLB: docker-build
+        INVOCATION_ID: $INVOCATION_ID
+      uses: docker://docker/compose:1.25.0-rc2
+      with:
+        args: docker-compose -f docker-compose.stage-2.yml build --parallel
 
-    #     echo "Show tagged images"
-    #     docker images
+    - name: Show tagged images
+      run: docker images
