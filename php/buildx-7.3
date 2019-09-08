@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:experimental
 
 FROM php73 AS php73-xdebug
-# target xdebug
+## target xdebug
+## this target layer depends on a target that is defined BELOW
 
 COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk \
@@ -37,6 +38,3 @@ RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk ln -vs /var/c
     php7-phar \
     php7-session \
     php7-zip
-
-
-# FROM php73 AS php73-target
