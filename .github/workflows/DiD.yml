@@ -12,11 +12,9 @@ jobs:
     container: docker/compose:1.25.0-rc2
       # volumes:
       #   - my_docker_volume:/volume_mount
-
     steps:
-    - name: compose dependencies
-      run: |
-        version
+    - name: compose version
+      run: version
 
     # - name: checkout
     #   uses: actions/checkout@v1 # --quiet
