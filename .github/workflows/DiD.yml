@@ -7,6 +7,18 @@ on:
 
 jobs:
   build-docker-compose:
+    name: test DinD
+    runs-on: ubuntu-latest
+    container: ubuntu:rolling
+    steps:
+    - name: ubuntu version
+      run: |
+        pwd
+        printenv
+        cat /etc/os-release
+        docker --version
+      shell: bash
+
     name: build with docker-compose
     runs-on: ubuntu-latest
     container: docker/compose:1.25.0-rc2
