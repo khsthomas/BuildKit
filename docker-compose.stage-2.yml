@@ -5,9 +5,8 @@ services:
     image: php:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}-xdebug
     build:
       context: ./php
-      dockerfile: Dockerfile-7.3-xdebug
-      args:
-        - PHP_BASE_IMAGE=php:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+      dockerfile: Dockerfile-7.3
+      target: php73-xdebug
 
   nodeapp:
     image: nodeapp:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}

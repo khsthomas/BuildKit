@@ -1,7 +1,0 @@
-ARG PHP_BASE_IMAGE
-
-FROM ${PHP_BASE_IMAGE} AS php73-xdebug
-
-COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-RUN apk add --no-cache \
-    php7-xdebug

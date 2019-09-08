@@ -6,6 +6,7 @@ services:
     build:
       context: ./php
       dockerfile: Dockerfile-7.3
+      target: php73
 
   nginx-base:
     image: nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
