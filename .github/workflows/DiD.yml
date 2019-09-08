@@ -10,10 +10,6 @@ jobs:
     name: test DinD
     runs-on: ubuntu-latest
 
-    steps:
-    - name: printenv
-      run: printenv
-
     - name: docker version
       uses: docker://docker/compose:1.25.0-rc2
       with:
@@ -27,7 +23,7 @@ jobs:
     - name: docker-compose config
       env:
         LLB: docker-build
-        INVOCATION_ID: $INVOCATION_ID
+        INVOCATION_ID: ${{ INVOCATION_ID }}
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
