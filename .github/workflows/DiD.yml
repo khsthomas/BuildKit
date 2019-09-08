@@ -1,0 +1,41 @@
+name: build Docker images
+
+on:
+  push:
+    branches:
+    - did/*
+
+jobs:
+  build-docker-compose:
+    name: build with docker-compose
+    runs-on: ubuntu-latest
+    container: docker/compose:1.25.0-rc2
+      # volumes:
+      #   - my_docker_volume:/volume_mount
+
+    steps:
+    - name: compose dependencies
+      run: |
+        docker-compose version
+
+    # - name: checkout
+    #   uses: actions/checkout@v1 # --quiet
+    #   with:
+    #     fetch-depth: 1
+
+    # - name: docker-compose build
+    #   env:
+    #     LLB: docker-build
+    #   run: |
+    #     echo "Show images to be built"
+    #     docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
+
+    #     echo "Building images"
+    #     # docker-compose build --parallel  ##  old version on the gihub action node, prevent us from using --parallel
+    #     docker-compose build
+
+    #     echo "Building images that depend on the previous stage"
+    #     docker-compose -f docker-compose.stage-2.yml build
+
+    #     echo "Show tagged images"
+    #     docker images
