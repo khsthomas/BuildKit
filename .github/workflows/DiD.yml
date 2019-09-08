@@ -9,16 +9,17 @@ jobs:
   build-docker-compose:
     name: test DinD
     runs-on: ubuntu-latest
-    container: ubuntu:rolling
     steps:
     - name: ubuntu version
       uses: docker://ubuntu:rolling
-      run: |
-        pwd
-        printenv
-        cat /etc/os-release
-        docker --version
-      shell: bash
+      with:
+        args: printenv
+      # run: |
+      #   pwd
+      #   printenv
+      #   cat /etc/os-release
+      #   docker --version
+      # shell: bash
 
       # volumes:
       #   - my_docker_volume:/volume_mount
