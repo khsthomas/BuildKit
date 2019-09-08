@@ -1,5 +1,14 @@
 # syntax=docker/dockerfile:experimental
 
+FROM php73 AS php73-xdebug
+# target xdebug
+
+COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk \
+    apk add --update \
+    php7-xdebug
+
+
 FROM alpine:3.10 AS php73
 # FROM codecasts/alpine-3.9:php-7.3 AS php73
 
@@ -14,7 +23,7 @@ COPY ./file.conf /etc/php7/conf.d/file.conf
 COPY ./file.conf /etc/php7/php-fpm.d/file.conf
 
 RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk ln -vs /var/cache/apk /etc/apk/cache && \
-	apk add --update \
+    apk add --update \
     php7-fpm \
     php7-curl \
     php7-exif \
@@ -29,12 +38,5 @@ RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk ln -vs /var/c
     php7-session \
     php7-zip
 
-FROM php73 AS php73-xdebug
-# target xdebug
 
-COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-RUN --mount=type=cache,id=apk,sharing=locked,target=/var/cache/apk \
-	apk add --update \
-    php7-xdebug
-
-FROM php73 AS php73-target
+# FROM php73 AS php73-target
