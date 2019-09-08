@@ -9,7 +9,7 @@ jobs:
   build-docker-compose:
     name: test DinD
     runs-on: ubuntu-latest
-    # container: ubuntu:rolling
+    container: ubuntu:rolling
     steps:
     - name: ubuntu version
       uses: docker://ubuntu:rolling
@@ -22,15 +22,15 @@ jobs:
 
       # volumes:
       #   - my_docker_volume:/volume_mount
-    - name: compose version
-      uses: docker://docker/compose:1.25.0-rc2
-      run: |
-        pwd
-        printenv
-        cat /etc/os-release
-        docker --version
-        docker-compose version
-      shell: sh
+    # - name: compose version
+    #   uses: docker://docker/compose:1.25.0-rc2
+    #   run: |
+    #     pwd
+    #     printenv
+    #     cat /etc/os-release
+    #     docker --version
+    #     docker-compose version
+    #   shell: sh
 
     # - name: checkout
     #   uses: actions/checkout@v1 # --quiet
