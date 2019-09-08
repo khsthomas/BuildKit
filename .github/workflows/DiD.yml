@@ -1,4 +1,4 @@
-name: build Docker images
+name: Docker in Docker
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: compose dependencies
       run: |
-        docker-compose version
+        version
 
     # - name: checkout
     #   uses: actions/checkout@v1 # --quiet
