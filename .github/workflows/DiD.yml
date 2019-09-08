@@ -24,7 +24,7 @@ jobs:
     - name: docker-compose config
       env:
         LLB: docker-build
-        INVOCATION_ID: ${INVOCATION_ID}
+        INVOCATION_ID: dunnowhattoputhere
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
@@ -32,15 +32,16 @@ jobs:
     - name: Building images
       env:
         LLB: docker-build
-        INVOCATION_ID: ${INVOCATION_ID}
+        INVOCATION_ID: dunnowhattoputhere
       uses: docker://docker/compose:1.25.0-rc2
       with:
-        args: docker-compose build --parallel
+        args: docker-compose build
+        # args: docker-compose build --parallel
 
     - name: Building images that depend on the previous stage
       env:
         LLB: docker-build
-        INVOCATION_ID: ${INVOCATION_ID}
+        INVOCATION_ID: dunnowhattoputhere
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose -f docker-compose.stage-2.yml build --parallel
