@@ -1,11 +1,6 @@
 name: Build Docker images
 
-on:
-  push:
-    branches:
-    - build/*
-  # pull_request:
-  # - opened
+on: [push, pull_request]
 
 jobs:
   # build-docker-compose:
@@ -88,12 +83,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: buildx dependencies
+
+    - name: install buildx
       env:
         BUILDX_VER: v0.3.0
+        BUILDC_URL: https://github.com/FernandoMiguel/buildx/suites/233680061/artifacts/46356
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
-        PREFER_BUILDCTL: 1
       run: |
         docker version
         docker info
@@ -103,11 +99,23 @@ jobs:
         export PATH=~/.docker/cli-plugins/:$PATH
         ### install binaries
           # curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
-          # chmod a+x ~/.docker/cli-plugins/docker-buildx
+          # chmod -v a+x ~/.docker/cli-plugins/docker-buildx
+        ## binaries built from master
+          cd ~/.docker/cli-plugins/
+          curl --silent --location ${BUILDC_URL} > gh-buildx.zip
+          unzip -j gh-buildx.zip
+          mv -v buildx* docker-buildx
+          chmod -v a+x docker-buildx
         ### build from source
-          docker build --platform=local -o . git://github.com/docker/buildx
-          mv -v buildx ~/.docker/cli-plugins/docker-buildx
+          # docker build --platform=local -o . git://github.com/docker/buildx
+          # mv -v buildx ~/.docker/cli-plugins/docker-buildx
 
+    - name: create docker-container
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+      run: |
+        export PATH=~/.docker/cli-plugins/:$PATH
         # docker-buildx create --use --buildkitd-flags '--oci-worker-gc=false'  ##  disable GC
         # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master  ##  use buildkit image built from latest master
         # docker-buildx create --use --driver docker-container --driver-opt image=moby/buildkit:master --buildkitd-flags '--load'  ##  load the single-platform build result to docker images
@@ -119,10 +127,9 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: buildx bake
+    - name: buildx bake print
       env:
         DOCKER_CLI_EXPERIMENTAL: enabled
-        PREFER_BUILDCTL: 1
         DOCKER_BUILDKIT: 1
         LLB: buildkit
       run: |
@@ -130,14 +137,20 @@ jobs:
 
         echo "Show images to be built"
         docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml config
-        docker-buildx bake -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml --print
+        docker-buildx bake -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml -f buildx.hcl -f buildx.stage-2.hcl --print
 
+    - name: buildx bake
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+        LLB: buildkit
+      run: |
+        export PATH=~/.docker/cli-plugins/:$PATH
         echo "Building images"
-        # docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
-        docker-buildx bake -f docker-compose.yml -f buildx.yml
+        docker-buildx bake -f docker-compose.yml -f buildx.yml -f buildx.hcl
 
         echo "Building images that depend on the previous stage"
-        docker-buildx bake -f docker-compose.stage-2.yml -f buildx.stage-2.yml
+        docker-buildx bake -f docker-compose.stage-2.yml -f buildx.stage-2.yml -f buildx.stage-2.hcl
 
         echo "Show tagged images"
         docker images
