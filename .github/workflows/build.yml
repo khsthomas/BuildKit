@@ -13,7 +13,7 @@ jobs:
   #       docker-compose version
 
   #   - name: checkout
-  #     uses: actions/checkout@v1
+  #     uses: actions/checkout@master
   #     with:
   #       fetch-depth: 1
 
@@ -46,7 +46,7 @@ jobs:
         args: docker version
 
     - name: checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@master
       with:
         fetch-depth: 1
 
@@ -140,7 +140,7 @@ jobs:
         docker-buildx ls
 
     - name: checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@master
       with:
         fetch-depth: 1
 
