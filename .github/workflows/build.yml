@@ -79,7 +79,7 @@ jobs:
 
     # - name: Docker login
     #   run: |
-    #     docker login docker.pkg.github.com --username fernandomiguel --password ${{ secrets.PACKAGES_TOKEN }}
+    #     docker login -p -q docker.pkg.github.com --username fernandomiguel --password ${{ secrets.PACKAGES_TOKEN }}
 
     # - name: Push Docker images
     #   env:
@@ -125,6 +125,7 @@ jobs:
         ### build from source
           # docker build --platform=local -o . git://github.com/docker/buildx
           # mv -v buildx ~/.docker/cli-plugins/docker-buildx
+          # chmod -v a+x ~/.docker/cli-plugins/docker-buildx
 
     - name: create docker-container
       env:
@@ -183,25 +184,33 @@ jobs:
         echo "Show tagged images"
         docker images
 
+    - name: Docker login
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+        LLB: buildkit
+      run: |
+        docker login -p -q docker.pkg.github.com --username fernandomiguel --password ${{ secrets.PACKAGES_TOKEN }}
+        docker login -p -q --username fernandomiguel --password ${{ secrets.DOCKER_HUB_TOKEN }}
+
     - name: Push Docker images
       env:
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
         LLB: buildkit
       run: |
-        docker login docker.pkg.github.com --username fernandomiguel --password ${{ secrets.PACKAGES_TOKEN }}
         docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml push
 
-    - name: buildx inspect
-      continue-on-error: true
-      env:
-        DOCKER_CLI_EXPERIMENTAL: enabled
-        DOCKER_BUILDKIT: 1
-        LLB: buildkit
-      run: |
-        export PATH=~/.docker/cli-plugins/:$PATH
-        echo "buildx inspect"
-        docker-buildx imagetools inspect docker.pkg.github.com/fernandomiguel/buildkit/nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    # - name: buildx inspect
+    #   continue-on-error: true
+    #   env:
+    #     DOCKER_CLI_EXPERIMENTAL: enabled
+    #     DOCKER_BUILDKIT: 1
+    #     LLB: buildkit
+    #   run: |
+    #     export PATH=~/.docker/cli-plugins/:$PATH
+    #     echo "buildx inspect"
+    #     docker-buildx imagetools inspect docker.pkg.github.com/fernandomiguel/buildkit/nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
 
-        echo "buildx inspect raw"
-        docker-buildx imagetools inspect --raw docker.pkg.github.com/fernandomiguel/buildkit/nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    #     echo "buildx inspect raw"
+    #     docker-buildx imagetools inspect --raw docker.pkg.github.com/fernandomiguel/buildkit/nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
