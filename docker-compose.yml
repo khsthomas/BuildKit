@@ -2,14 +2,14 @@ version: "3.7"
 
 services:
   php73:
-    image: php:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    image: docker.pkg.github.com/fernandomiguel/buildkit/php:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
     build:
       context: ./php
       dockerfile: Dockerfile-7.3
       target: php73
 
   nginx-base:
-    image: nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+    image: docker.pkg.github.com/fernandomiguel/buildkit/nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
     build:
       context: ./nginx
       dockerfile: Dockerfile

@@ -53,7 +53,7 @@ jobs:
     - name: docker-compose config
       env:
         LLB: docker-build
-        # INVOCATION_ID: dunnowhattoputhere
+        # INVOCATION_ID: ${{ INVOCATION_ID }}
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
@@ -61,7 +61,7 @@ jobs:
     - name: Building images
       env:
         LLB: docker-build
-        # INVOCATION_ID: dunnowhattoputhere
+        # INVOCATION_ID: ${{ INVOCATION_ID }}
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose build --parallel
@@ -69,13 +69,29 @@ jobs:
     - name: Building images that depend on the previous stage
       env:
         LLB: docker-build
-        # INVOCATION_ID: dunnowhattoputhere
+        # INVOCATION_ID: ${{ INVOCATION_ID }}
       uses: docker://docker/compose:1.25.0-rc2
       with:
         args: docker-compose -f docker-compose.stage-2.yml build --parallel
 
     - name: Show tagged images
       run: docker images
+
+    # - name: Docker login
+    #   run: |
+    #     docker login docker.pkg.github.com --username fernandomiguel --password ${{ secrets.PACKAGES_TOKEN }}
+
+    # - name: Push Docker images
+    #   env:
+    #     LLB: docker-build
+    #     # INVOCATION_ID: ${{ INVOCATION_ID }}
+    #   uses: docker://docker/compose:1.25.0-rc2
+    #   volumes:
+    #     - /home/runner/.docker/config.json:/root/.docker/config.json
+    #   with:
+    #     args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml push
+
+
 
 
   build-buildx:
@@ -146,14 +162,46 @@ jobs:
         LLB: buildkit
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
+
         echo "Building images"
         docker-buildx bake -f docker-compose.yml -f buildx.yml -f buildx.hcl
 
         echo "Building images that depend on the previous stage"
         docker-buildx bake -f docker-compose.stage-2.yml -f buildx.stage-2.yml -f buildx.stage-2.hcl
 
+        # echo "Show Docker layer cache"
+        # ls -lahtr ~/dockercache/
+
+    - name: Show tagged images
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+        LLB: buildkit
+      run: |
+        export PATH=~/.docker/cli-plugins/:$PATH
+
         echo "Show tagged images"
         docker images
 
-        # echo "Show Docker layer cache"
-        # ls -lahtr ~/dockercache/
+    - name: Push Docker images
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+        LLB: buildkit
+      run: |
+        docker login docker.pkg.github.com --username fernandomiguel --password ${{ secrets.PACKAGES_TOKEN }}
+        docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml push
+
+    - name: buildx inspect
+      continue-on-error: true
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        DOCKER_BUILDKIT: 1
+        LLB: buildkit
+      run: |
+        export PATH=~/.docker/cli-plugins/:$PATH
+        echo "buildx inspect"
+        docker-buildx imagetools inspect docker.pkg.github.com/fernandomiguel/buildkit/nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
+
+        echo "buildx inspect raw"
+        docker-buildx imagetools inspect --raw docker.pkg.github.com/fernandomiguel/buildkit/nginx-base:release-${LLB}-${GITHUB_SHA}-${INVOCATION_ID}
