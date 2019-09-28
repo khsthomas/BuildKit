@@ -102,8 +102,8 @@ jobs:
 
     - name: install buildx
       env:
-        BUILDX_VER: v0.3.0
-        BUILDC_URL: https://github.com/FernandoMiguel/buildx/suites/233680061/artifacts/46356
+        BUILDX_VER: v0.3.1
+        BUILDC_URL: https://github.com/FernandoMiguel/buildx/suites/242809531/artifacts/62954
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
       run: |
@@ -114,18 +114,16 @@ jobs:
           ~/dockercache
         export PATH=~/.docker/cli-plugins/:$PATH
         ### install binaries
-          # curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
-          # chmod -v a+x ~/.docker/cli-plugins/docker-buildx
+          curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
         ## binaries built from master
-          cd ~/.docker/cli-plugins/
-          curl --silent --location ${BUILDC_URL} > gh-buildx.zip
-          unzip -j gh-buildx.zip
-          mv -v buildx* docker-buildx
-          chmod -v a+x docker-buildx
+          # cd ~/.docker/cli-plugins/
+          # curl --silent --location ${BUILDC_URL} > gh-buildx.zip
+          # unzip -j gh-buildx.zip
+          # mv -v buildx* docker-buildx
         ### build from source
           # docker build --platform=local -o . git://github.com/docker/buildx
           # mv -v buildx ~/.docker/cli-plugins/docker-buildx
-          # chmod -v a+x ~/.docker/cli-plugins/docker-buildx
+        chmod -v a+x ~/.docker/cli-plugins/docker-buildx
 
     - name: create docker-container
       env:
