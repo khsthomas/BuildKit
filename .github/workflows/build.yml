@@ -41,7 +41,7 @@ jobs:
 
     steps:
     - name: docker version
-      uses: docker://docker/compose:1.25.0-rc2
+      uses: docker://docker/compose:1.25.0-rc4
       with:
         args: docker version
 
@@ -53,24 +53,27 @@ jobs:
     - name: docker-compose config
       env:
         LLB: docker-build
+        COMPOSE_DOCKER_CLI_BUILD: 1
         # INVOCATION_ID: ${{ INVOCATION_ID }}
-      uses: docker://docker/compose:1.25.0-rc2
+      uses: docker://docker/compose:1.25.0-rc4
       with:
         args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
 
     - name: Building images
       env:
         LLB: docker-build
+        COMPOSE_DOCKER_CLI_BUILD: 1
         # INVOCATION_ID: ${{ INVOCATION_ID }}
-      uses: docker://docker/compose:1.25.0-rc2
+      uses: docker://docker/compose:1.25.0-rc4
       with:
         args: docker-compose build --parallel
 
     - name: Building images that depend on the previous stage
       env:
         LLB: docker-build
+        COMPOSE_DOCKER_CLI_BUILD: 1
         # INVOCATION_ID: ${{ INVOCATION_ID }}
-      uses: docker://docker/compose:1.25.0-rc2
+      uses: docker://docker/compose:1.25.0-rc4
       with:
         args: docker-compose -f docker-compose.stage-2.yml build --parallel
 
@@ -85,7 +88,7 @@ jobs:
     #   env:
     #     LLB: docker-build
     #     # INVOCATION_ID: ${{ INVOCATION_ID }}
-    #   uses: docker://docker/compose:1.25.0-rc2
+    #   uses: docker://docker/compose:1.25.0-rc4
     #   volumes:
     #     - /home/runner/.docker/config.json:/root/.docker/config.json
     #   with:
@@ -99,16 +102,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
     - name: install buildx
       env:
         BUILDX_VER: v0.3.1
-        BUILDC_URL: https://github.com/FernandoMiguel/buildx/suites/242809531/artifacts/62954
+        BUILDX_URL: https://github.com/FernandoMiguel/buildx/suites/242809531/artifacts/62954
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
       run: |
         docker version
         docker info
+        printenv
         mkdir -vp \
           ~/.docker/cli-plugins/ \
           ~/dockercache
@@ -117,13 +120,15 @@ jobs:
           curl --silent -L https://github.com/docker/buildx/releases/download/"$BUILDX_VER"/buildx-"$BUILDX_VER".linux-amd64 > ~/.docker/cli-plugins/docker-buildx
         ## binaries built from master
           # cd ~/.docker/cli-plugins/
-          # curl --silent --location ${BUILDC_URL} > gh-buildx.zip
+          # curl --silent --location ${BUILDX_URL} > gh-buildx.zip
           # unzip -j gh-buildx.zip
           # mv -v buildx* docker-buildx
         ### build from source
           # docker build --platform=local -o . git://github.com/docker/buildx
           # mv -v buildx ~/.docker/cli-plugins/docker-buildx
         chmod -v a+x ~/.docker/cli-plugins/docker-buildx
+        docker plugin ls
+        docker-buildx version
 
     - name: create docker-container
       env:
