@@ -149,7 +149,8 @@ After installing the plug-in, you can enable it executing `docker buildx install
 For me the most interesting feature of buildx is `bake`.
 
 > Currently, the bake command supports building images from compose files, similar to compose build but allowing all the services to be built concurrently as part of a single request.
-There is also support for custom build rules from HCL/JSON files allowing better code reuse and different target groups. The design of bake is in very early stages and we are looking for feedback from users.
+
+> There is also support for custom build rules from HCL/JSON files allowing better code reuse and different target groups. The design of bake is in very early stages and we are looking for feedback from users.
 
 This allows us with minimal effort and a simple override file to use a `docker-compose.yaml` file with buildx.
 
@@ -159,6 +160,7 @@ This allows us with minimal effort and a simple override file to use a `docker-c
 ## docker-compose override
 
 We begin with creating an override file to our usual `docker-compose.yml` file.
+
 This is required cause the way docker-compose and bake handle `context` path is different.
 
 You can find one of such files at: [ buildx.yml ]( buildx.yml )
