@@ -42,6 +42,7 @@ After the launch of `multi-stage build` feature for docker build, users requests
 ## BuildKit
 
 > BuildKit is a new project under the Moby umbrella for building and packaging software using containers. It’s a new codebase meant to replace the internals of the current build features in the Moby Engine.
+
 > From the performance side, a significant update is a new fully concurrent build graph solver. It can run build steps in parallel when possible and optimize out commands that don’t have an impact on the final result.
 
 
@@ -103,14 +104,17 @@ For me the most interesting of these are:
 * RUN --mount=type=cache
 > This mount type allows the build container to cache directories for compilers and package managers.
 
-This becomes super useful to use with NPM, Maven or APK/APT.
-The packages are stored outside of the docker layer, in a volume cache in the host.
-Other build executions or layers can then access that cache, avoiding to download again.
+> This becomes super useful to use with NPM, Maven or APK/APT.
+
+> The packages are stored outside of the docker layer, in a volume cache in the host.
+
+> Other build executions or layers can then access that cache, avoiding to download again.
+
 
 * RUN --mount=type=secret
 > This mount type allows the build container to access secure files such as private keys without baking them into the image.
 
-You can now execute limited scope RUNs, exposing your secrets just to that layer, instead of the all build.
+> You can now execute limited scope RUNs, exposing your secrets just to that layer, instead of the all build.
 
 
 ## buildx
@@ -125,15 +129,26 @@ You can now execute limited scope RUNs, exposing your secrets just to that layer
 
 buildx is a _drop-in replacement_ for Docker build, supercharging it with many of BuildKit features.
 
-Recent versions of Docker bring buildx embedded, but disabled.
+> `buildx` comes bundled with Docker CE starting with v19.03, but requires experimental mode to be enabled on the Docker CLI.
 
-You can manually install the plug-in, for example a newer version, by placing it at `.docker/cli-plugins/`
+> To enable it, `"experimental": "enabled"` can be added to the CLI configuration file `~/.docker/config.json` .
+
+> An alternative is to set the `DOCKER_CLI_EXPERIMENTAL=enabled` environment variable.
+
+You can manually install the plug-in, for example a newer version, by placing it at `.docker/cli-plugins/` .
 
 After installing the plug-in, you can enable it executing `docker buildx install`.
 
+> `buildx` will always build using the BuildKit engine and does not require `DOCKER_BUILDKIT=1` environment variable for starting builds.
+
+
+> `buildx` is supposed to be flexible and can be run in different configurations that are exposed through a driver concept.
+
+> Currently, supports a `docker driver` that uses the BuildKit library bundled into the docker daemon binary, and a `docker-container` driver that automatically launches BuildKit inside a Docker container.
+
 For me the most interesting feature of buildx is `bake`.
 
-* > Currently, the bake command supports building images from compose files, similar to compose build but allowing all the services to be built concurrently as part of a single request.
+> Currently, the bake command supports building images from compose files, similar to compose build but allowing all the services to be built concurrently as part of a single request.
 There is also support for custom build rules from HCL/JSON files allowing better code reuse and different target groups. The design of bake is in very early stages and we are looking for feedback from users.
 
 This allows us with minimal effort and a simple override file to use a `docker-compose.yaml` file with buildx.
