@@ -7,6 +7,7 @@
 	- [BuildKit](#buildkit)
 		- [LLB](#llb)
 		- [Key features:](#key-features)
+	- [Enable BuildKit](#enable-buildkit)
 	- [Dockerfile frontend experimental syntaxes](#dockerfile-frontend-experimental-syntaxes)
 	- [buildx](#buildx)
 - [Implementation](#implementation)
@@ -22,6 +23,7 @@
 	- [BuildKit](#buildkit-1)
 	- [Buildx](#buildx)
 	- [Dockerfile frontend experimental syntaxes](#dockerfile-frontend-experimental-syntaxes-1)
+	- [Videos](#videos)
 
 <!-- /TOC -->
 
@@ -45,9 +47,9 @@ After the launch of `multi-stage build` feature for docker build, users requests
 
 ### LLB
 
-> At the core of BuildKit is a new low-level build definition format called LLB (low-level builder). This is an intermediate binary format that end users are not exposed to but allows to easily build on top of BuildKit. LLB defines a content-addressable dependency graph that can be used to put together very complex build definitions. It also supports features not exposed in Dockerfiles, like direct data mounting and nested invocation.
+> At the core of BuildKit is a new low-level build definition format called LLB (low-level builder). This is an intermediate binary format that end users are not exposed to but allows to easily build on top of BuildKit. LLB defines a content-addressable dependency graph that can be used to put together very complex build definitions. It also supports features not exposed in Dockerfile, like direct data mounting and nested invocation.
 
-> A frontend is a component that takes a human-readable build format and converts it to LLB so BuildKit can execute it. Frontends can be distributed as images, and the user can target a specific version of a frontend that is guaranteed to work for the features used by their definition. For example, to build a Dockerfile with BuildKit, you would use an external Dockerfile frontend. Check out the examples of using Dockerfiles with BuildKit with a development version of such image.
+> A frontend is a component that takes a human-readable build format and converts it to LLB so BuildKit can execute it. Frontends can be distributed as images, and the user can target a specific version of a frontend that is guaranteed to work for the features used by their definition. For example, to build a Dockerfile with BuildKit, you would use an external Dockerfile frontend. Check out the examples of using Dockerfile with BuildKit with a development version of such image.
 
 
 ### Key features:
@@ -65,18 +67,34 @@ After the launch of `multi-stage build` feature for docker build, users requests
 
 As a engineer that produces many docker images, the most interesting points from this list are:
 * Efficient instruction caching;
-> allows for the order in the `Dockerfile` to no matter as much as it did before, when optimising cache bust.
+> allows for the order in the `Dockerfile` to no matter as much as it did before, when optimizing cache bust.
 * Concurrent dependency resolution;
-> As good practice, our Dockerfiles use multi-layers,to optimise time and storage for each layer.
+> As good practice, our `Dockerfile` use multi-layers,to optimize time and storage for each layer.
 With this improvement, stages that are not needed can be skipped.
 * Build cache import/export;
 > We are able to export the export the cache to a docker repository, and layer pull it before building, saving considerable amount of time for very large builds.
 
 
+## Enable BuildKit
+
+To enable BuildKit on Docker v18.09 or newer, execute:
+
+```sh
+export DOCKER_BUILDKIT=1
+```
+
+To enable BuildKit for docker-compose v1.25 or newer, execute:
+
+```sh
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+```
+
 ## Dockerfile frontend experimental syntaxes
 
 While developing the new BuildKit interface, a new set of options were introduced.
-You can enable them on docker v18.06 and v19 by `export DOCKER_BUILDKIT=1` and add `# syntax=docker/dockerfile:experimental` as the 1st line of your Dockerfile.
+
+To enable them, add `# syntax=docker/dockerfile:experimental` as the 1st line of your Dockerfile.
 
 Building a Dockerfile with experimental features like `RUN --mount=type=(bind|cache|tmpfs|secret|ssh)`
 
@@ -105,13 +123,17 @@ You can now execute limited scope RUNs, exposing your secrets just to that layer
 * Multi-node builds for cross-platform images
 * Compose build support
 
-So, buildx is a _drop-in replacement_ for Docker build, supercharging it with many of BuildKit features.
+buildx is a _drop-in replacement_ for Docker build, supercharging it with many of BuildKit features.
+
+Recent versions of Docker bring buildx embedded, but disabled.
+
+You can manually install the plug-in, for example a newer version, by placing it at `.docker/cli-plugins/`
 
 After installing the plug-in, you can enable it executing `docker buildx install`.
 
 For me the most interesting feature of buildx is `bake`.
 
-> Currently, the bake command supports building images from compose files, similar to compose build but allowing all the services to be built concurrently as part of a single request.
+* > Currently, the bake command supports building images from compose files, similar to compose build but allowing all the services to be built concurrently as part of a single request.
 There is also support for custom build rules from HCL/JSON files allowing better code reuse and different target groups. The design of bake is in very early stages and we are looking for feedback from users.
 
 This allows us with minimal effort and a simple override file to use a `docker-compose.yaml` file with buildx.
@@ -220,7 +242,6 @@ It is also recommended to use `sharing=locked` or `sharing=private` if your pack
 
 One will make the build process slightly slower, since the run commands that use the mount with same id will now wait for each other, and the other loses the benefit of shared cache.
 
-.
 
 ### RUN --mount=type=secret
 
@@ -259,3 +280,7 @@ docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
 
 ## Dockerfile frontend experimental syntaxes
 * https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/experimental.md
+
+## Videos
+* https://www.youtube.com/watch?v=x5zDN9_c-k4
+* https://www.youtube.com/watch?v=JofsaZ3H1qM
