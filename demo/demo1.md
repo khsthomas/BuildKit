@@ -6,7 +6,9 @@ export DOCKER_BUILDKIT=0
 export COMPOSE_DOCKER_CLI_BUILD=0
 
 docker-compose config
-time docker-compose build --parallel
+time docker-compose build --parallel --no-cache
 
 docker images
+
+time docker-compose build --parallel
 ```
