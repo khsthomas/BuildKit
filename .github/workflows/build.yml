@@ -43,7 +43,7 @@ jobs:
 
     steps:
     - name: docker version
-      uses: docker://docker/ccompose:1.25.0-alpine
+      uses: docker://docker/ccompose:1.25.0
       with:
         args: docker version
 

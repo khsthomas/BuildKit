@@ -23,7 +23,8 @@ jobs:
 
     - name: docker-compose build (SH)
       env:
-        LLB: docker-build
+        LLB: docker-compose-with-buildkit
+        DOCKER_BUILDKIT: 1
         COMPOSE_DOCKER_CLI_BUILD: 1
       run: |
         echo "Show images to be built"
