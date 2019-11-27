@@ -9,7 +9,12 @@ jobs:
 
     steps:
     - name: compose dependencies
+      env:
+        DOCKER_BUILDKIT: 0
+        COMPOSE_DOCKER_CLI_BUILD: 0
       run: |
+        docker info
+        docker version
         docker-compose version
 
     - name: checkout
@@ -43,6 +48,9 @@ jobs:
 
     steps:
     - name: docker version
+      env:
+        DOCKER_BUILDKIT: 1
+        COMPOSE_DOCKER_CLI_BUILD: 1
       uses: docker://docker/compose:1.25.0-alpine
       with:
         args: docker version
