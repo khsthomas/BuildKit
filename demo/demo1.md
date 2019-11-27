@@ -6,7 +6,7 @@ export DOCKER_BUILDKIT=0
 export COMPOSE_DOCKER_CLI_BUILD=0
 
 docker-compose config
-time docker-compose build
+time docker-compose build --parallel
 
 docker images
 ```
