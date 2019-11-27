@@ -3,36 +3,38 @@ name: Build Docker images
 on: [push, pull_request]
 
 jobs:
-  # build-docker-compose:
-  #   name: Build with docker-compose
-  #   runs-on: ubuntu-latest
+  build-docker-compose:
+    name: Build with docker-compose
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   - name: compose dependencies
-  #     run: |
-  #       docker-compose version
+    steps:
+    - name: compose dependencies
+      run: |
+        docker-compose version
 
-  #   - name: checkout
-  #     uses: actions/checkout@master
-  #     with:
-  #       fetch-depth: 1
+    - name: checkout
+      uses: actions/checkout@master
+      with:
+        fetch-depth: 1
 
-  #   - name: docker-compose build
-  #     env:
-  #       LLB: docker-build
-  #     run: |
-  #       echo "Show images to be built"
-  #       docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
+    - name: docker-compose build
+      env:
+        LLB: docker-compose-without-buildkit
+        DOCKER_BUILDKIT: 0
+        COMPOSE_DOCKER_CLI_BUILD: 0
+      run: |
+        echo "Show images to be built"
+        docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
 
-  #       echo "Building images"
-  #       # docker-compose build --parallel  ##  old version on the gihub action node, prevent us from using --parallel
-  #       docker-compose build
+        echo "Building images"
+        # docker-compose build --parallel  ##  old version on the gihub action node, prevent us from using --parallel
+        docker-compose build
 
-  #       echo "Building images that depend on the previous stage"
-  #       docker-compose -f docker-compose.stage-2.yml build
+        echo "Building images that depend on the previous stage"
+        docker-compose -f docker-compose.stage-2.yml build
 
-  #       echo "Show tagged images"
-  #       docker images
+        echo "Show tagged images"
+        docker images
 
 
   build-docker-compose-image:
@@ -41,7 +43,7 @@ jobs:
 
     steps:
     - name: docker version
-      uses: docker://docker/compose:1.25.0-rc4
+      uses: docker://docker/ccompose:1.25.0-alpine
       with:
         args: docker version
 
@@ -52,28 +54,31 @@ jobs:
 
     - name: docker-compose config
       env:
-        LLB: docker-build
+        LLB: docker-compose-with-buildkit
+        DOCKER_BUILDKIT: 1
         COMPOSE_DOCKER_CLI_BUILD: 1
         # INVOCATION_ID: ${{ INVOCATION_ID }}
-      uses: docker://docker/compose:1.25.0-rc4
+      uses: docker://docker/compose:1.25.0-alpine
       with:
         args: docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml config
 
     - name: Building images
       env:
-        LLB: docker-build
+        LLB: docker-compose-with-buildkit
+        DOCKER_BUILDKIT: 1
         COMPOSE_DOCKER_CLI_BUILD: 1
         # INVOCATION_ID: ${{ INVOCATION_ID }}
-      uses: docker://docker/compose:1.25.0-rc4
+      uses: docker://docker/compose:1.25.0-alpine
       with:
         args: docker-compose build --parallel
 
     - name: Building images that depend on the previous stage
       env:
-        LLB: docker-build
+        LLB: docker-compose-with-buildkit
+        DOCKER_BUILDKIT: 1
         COMPOSE_DOCKER_CLI_BUILD: 1
         # INVOCATION_ID: ${{ INVOCATION_ID }}
-      uses: docker://docker/compose:1.25.0-rc4
+      uses: docker://docker/compose:1.25.0-alpine
       with:
         args: docker-compose -f docker-compose.stage-2.yml build --parallel
 
@@ -86,9 +91,9 @@ jobs:
 
     # - name: Push Docker images
     #   env:
-    #     LLB: docker-build
+    #     LLB: docker-compose-with-buildkit
     #     # INVOCATION_ID: ${{ INVOCATION_ID }}
-    #   uses: docker://docker/compose:1.25.0-rc4
+    #   uses: docker://docker/compose:1.25.0-alpine
     #   volumes:
     #     - /home/runner/.docker/config.json:/root/.docker/config.json
     #   with:
@@ -108,6 +113,7 @@ jobs:
         BUILDX_URL: https://github.com/FernandoMiguel/buildx/suites/242809531/artifacts/62954
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
+        COMPOSE_DOCKER_CLI_BUILD: 1
       run: |
         docker version
         docker info
@@ -149,9 +155,10 @@ jobs:
 
     - name: buildx bake print
       env:
+        LLB: bake-buildkit
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
-        LLB: buildkit
+        COMPOSE_DOCKER_CLI_BUILD: 1
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
 
@@ -163,7 +170,7 @@ jobs:
       env:
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
-        LLB: buildkit
+        LLB: bake-buildkit
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
 
@@ -180,7 +187,7 @@ jobs:
       env:
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
-        LLB: buildkit
+        LLB: bake-buildkit
       run: |
         export PATH=~/.docker/cli-plugins/:$PATH
 
@@ -191,7 +198,7 @@ jobs:
       env:
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
-        LLB: buildkit
+        LLB: bake-buildkit
       run: |
         docker login -p -q docker.pkg.github.com --username fernandomiguel --password ${{ secrets.PACKAGES_TOKEN }}
         docker login -p -q --username fernandomiguel --password ${{ secrets.DOCKER_HUB_TOKEN }}
@@ -200,7 +207,8 @@ jobs:
       env:
         DOCKER_CLI_EXPERIMENTAL: enabled
         DOCKER_BUILDKIT: 1
-        LLB: buildkit
+        COMPOSE_DOCKER_CLI_BUILD: 1
+        LLB: bake-buildkit
       run: |
         docker-compose -f docker-compose.yml -f docker-compose.stage-2.yml -f buildx.yml -f buildx.stage-2.yml push
 
@@ -209,7 +217,7 @@ jobs:
     #   env:
     #     DOCKER_CLI_EXPERIMENTAL: enabled
     #     DOCKER_BUILDKIT: 1
-    #     LLB: buildkit
+    #     LLB: bake-buildkit
     #   run: |
     #     export PATH=~/.docker/cli-plugins/:$PATH
     #     echo "buildx inspect"
