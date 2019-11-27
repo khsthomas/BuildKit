@@ -11,5 +11,5 @@ time docker buildx bake -f docker-compose.yml -f buildx.yml --no-cache
 
 docker images
 
-time docker buildx bake -f docker-compose.yml -f buildx.yml --no-cache
+time docker buildx bake -f docker-compose.yml -f buildx.yml
 ```
