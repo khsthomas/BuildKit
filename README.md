@@ -301,3 +301,6 @@ docker-buildx bake --progress plain -f docker-compose.yml -f buildx.yml
 ## Videos
 * https://www.youtube.com/watch?v=x5zDN9_c-k4
 * https://www.youtube.com/watch?v=JofsaZ3H1qM
+
+## stackoverflow
+* https://stackoverflow.com/questions/59756123/use-buildx-build-linux-arm64-in-docker-compose-file
